@@ -19,17 +19,35 @@ df = pd.DataFrame({'x': x_values, 'f(x)': y_values})
 print(df)
 
 
-def lagrange_interpolation(x_nodes, y_nodes, x_star, order):
+def lagrange_interpolation(
+    x_nodes: np.ndarray,
+    y_nodes: np.ndarray,
+    x_star: float,
+    order: int
+) -> tuple[float, np.ndarray]:
+    """
+    Computes the Lagrange interpolation polynomial of given order at point x_star.
+
+    Args:
+        x_nodes (np.ndarray): array of interpolation nodes
+        y_nodes (np.ndarray): function values at the interpolation nodes
+        x_star (float): the point at which to interpolate
+        order (int): the order of the interpolation polynomial
+
+    Returns:
+        tuple[float, np.ndarray]:
+            - interpolated value at x_star
+            - array of nodes used for interpolation
+    """
     if order >= len(x_nodes):
         raise ValueError("Порядок интерполяции выше количества доступных точек")
 
     distances = np.abs(x_nodes - x_star)
     indices = np.argsort(distances)[:order + 1]
-
     x_selected = x_nodes[indices]
     y_selected = y_nodes[indices]
 
-    result = 0
+    result = 0.0
     for j in range(order + 1):
         term = y_selected[j]
         for m in range(order + 1):
@@ -40,7 +58,24 @@ def lagrange_interpolation(x_nodes, y_nodes, x_star, order):
     return result, x_selected
 
 
-def lagrange_error_bounds(f_expr, x_nodes, x_star, order):
+def lagrange_error_bounds(
+    f_expr: sp.Expr,
+    x_nodes: np.ndarray,
+    x_star: float,
+    order: int
+) -> tuple[float, float]:
+    """
+    Estimates the bounds for interpolation error of Lagrange polynomial.
+
+    Args:
+        f_expr (sp.Expr): symbolic expression of the function
+        x_nodes (np.ndarray): array of interpolation nodes
+        x_star (float): point at which interpolation is performed
+        order (int): order of the interpolation polynomial
+
+    Returns:
+        tuple[float, float]: (minimum estimate, maximum estimate) of the interpolation error
+    """
     x = sp.Symbol('x')
     deriv = f_expr
     for _ in range(order + 1):
@@ -55,17 +90,27 @@ def lagrange_error_bounds(f_expr, x_nodes, x_star, order):
     min_deriv = np.min(deriv_values)
     max_deriv = np.max(deriv_values)
 
-    product = 1
-    for xi in x_nodes:
-        product *= (x_star - xi)
-
+    product = np.prod([x_star - xi for xi in x_nodes])
     r_min = (min_deriv / math.factorial(order + 1)) * abs(product)
     r_max = (max_deriv / math.factorial(order + 1)) * abs(product)
 
     return r_min, r_max
 
 
-def divided_differences(x_nodes, y_nodes):
+def divided_differences(
+    x_nodes: np.ndarray,
+    y_nodes: np.ndarray
+) -> np.ndarray:
+    """
+    Computes coefficients of Newton's divided differences table.
+
+    Args:
+        x_nodes (np.ndarray): array of interpolation nodes
+        y_nodes (np.ndarray): function values at the nodes
+
+    Returns:
+        np.ndarray: array of divided difference coefficients
+    """
     n = len(x_nodes)
     coef = np.copy(y_nodes).astype(float)
 
@@ -75,7 +120,26 @@ def divided_differences(x_nodes, y_nodes):
     return coef
 
 
-def newton_interpolation(x_nodes, y_nodes, x_star, order):
+def newton_interpolation(
+    x_nodes: np.ndarray,
+    y_nodes: np.ndarray,
+    x_star: float,
+    order: int
+) -> tuple[float, np.ndarray]:
+    """
+    Computes the Newton interpolation polynomial of given order at point x_star.
+
+    Args:
+        x_nodes (np.ndarray): array of interpolation nodes
+        y_nodes (np.ndarray): function values at the interpolation nodes
+        x_star (float): point at which to evaluate the interpolant
+        order (int): order of the interpolation polynomial
+
+    Returns:
+        tuple[float, np.ndarray]:
+            - interpolated value at x_star
+            - array of nodes used for interpolation
+    """
     if order >= len(x_nodes):
         raise ValueError("Порядок интерполяции выше количества доступных точек")
 
@@ -170,4 +234,3 @@ print(f"Абсолютная погрешность: |N_2 - f(x*)| = {error_n2}"
 print("\n--- Разности между значениями Лагранжа и Ньютона ---")
 print(f"|L_1 - N_1| = {abs(lagrange_value - newton_val_1)}")
 print(f"|L_2 - N_2| = {abs(lagrange_value_2 - newton_val_2)}")
-
