@@ -245,6 +245,6 @@ print(f"Абсолютная погрешность: {error4}")
 print(f"R_min4 = {r_min4}")
 print(f"R_max4 = {r_max4}")
 if r_min4 < error4 < r_max4:
-    print("min(R) < |L - f| < max(R) выполняется")
+    print("min(R) < |L - f| < max(R) не выполняется")
 else:
     print("min(R) < |L - f| < max(R) выполняется")
