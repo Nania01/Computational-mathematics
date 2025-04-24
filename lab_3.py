@@ -3,7 +3,22 @@ import pandas as pd
 from math import sin, cos, exp
 from tabulate import tabulate
 
+
 def find_first_diff(nodes: list[float], x: float, f: callable) -> float:
+    """
+    Computes the first derivative of a function using the 3-point Lagrange interpolation.
+
+    This function uses the central point and its immediate neighbors to estimate the
+    first derivative at a given point based on the Lagrange polynomial differentiation.
+
+    Args:
+        nodes (list[float]): List of three nodes [x_{i-1}, x_i, x_{i+1}].
+        x (float): The point at which to approximate the derivative.
+        f (callable): The function whose derivative is being approximated.
+
+    Returns:
+        float: Approximated first derivative at the point x.
+    """
     x_im1, x_i, x_ip1 = nodes
 
     f_im1 = f(x_im1)
@@ -16,7 +31,21 @@ def find_first_diff(nodes: list[float], x: float, f: callable) -> float:
 
     return f_im1 * l_im1_der + f_i * l_i_der + f_ip1 * l_ip1_der
 
+
 def find_second_diff(nodes: list[float], f: callable) -> float:
+    """
+    Computes the second derivative of a function using the 3-point Lagrange interpolation.
+
+    This method approximates the second derivative at the central node using the
+    second-order formula derived from differentiating the Lagrange polynomial twice.
+
+    Args:
+        nodes (list[float]): List of three nodes [x_{i-1}, x_i, x_{i+1}].
+        f (callable): The function whose second derivative is being approximated.
+
+    Returns:
+        float: Approximated second derivative at the central point.
+    """
     x_im1, x_i, x_ip1 = nodes
 
     f_im1 = f(x_im1)
@@ -28,6 +57,7 @@ def find_second_diff(nodes: list[float], f: callable) -> float:
     l_ip1 = 1 / ((x_ip1 - x_im1) * (x_ip1 - x_i))
 
     return 2 * (f_im1 * l_im1 + f_i * l_i + f_ip1 * l_ip1)
+
 
 f_1 = lambda x: x**2 + sin(x)
 f_2 = lambda x: x**2 + 0.3 * exp(-x)
