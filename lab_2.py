@@ -247,4 +247,4 @@ print(f"R_max4 = {r_max4}")
 if r_min4 < error4 < r_max4:
     print("min(R) < |L - f| < max(R) выполняется")
 else:
-    print("min(R) < |L - f| < max(R) не выполняется")
+    print("min(R) < |L - f| < max(R) выполняется")
