@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
+import matplotlib.pyplot as plt
 
 
 def separate_roots(f: callable, a: float, b: float, bins: int) -> list:
@@ -132,5 +133,55 @@ for a_i, b_i in intervals:
         root_secant
     ))
 
-df = pd.DataFrame(results, columns=["Интервал", "Корень (метод касательных)", "Корень (метод хорд)"])
-print(tabulate(df, headers="keys", tablefmt="fancy_grid", floatfmt=".10f", showindex=False))
+table = pd.DataFrame(results, columns=["Интервал", "Корень (метод касательных)", "Корень (метод хорд)"])
+print(tabulate(table, headers="keys", tablefmt="fancy_grid", floatfmt=".10f", showindex=False))
+
+x_plot = np.linspace(a, b, 1000)
+y_plot = f(x_plot)
+
+roots_newton = [r[1] for r in results]
+roots_secant = [r[2] for r in results]
+
+plt.figure(figsize=(10, 6))
+plt.plot(x_plot, y_plot, label="f(x)", color="blue")
+plt.axhline(0, color="black", linewidth=1, linestyle="--")
+plt.scatter(roots_newton, [f(x) for x in roots_newton], color="red", marker="o", label="Корни (касат.)")
+plt.scatter(roots_secant, [f(x) for x in roots_secant], color="green", marker="x", label="Корни (хорд)")
+plt.title("График функции и найденные корни")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+a_i, b_i = intervals[0]
+x_newton, x_secant = choose_initial_points(f, d2f, a_i, b_i)
+f_newton = f(x_newton)
+df_newton = df(x_newton)
+f_secant = f(x_secant)
+
+x_tangent = np.linspace(x_newton - 1, x_newton + 1, 100)
+y_tangent = f_newton + df_newton * (x_tangent - x_newton)
+
+x_chord = np.linspace(min(x_newton, x_secant) - 0.5, max(x_newton, x_secant) + 0.5, 100)
+slope = (f_newton - f_secant) / (x_newton - x_secant)
+y_chord = f_secant + slope * (x_chord - x_secant)
+
+x_local = np.linspace(a_i - 1, b_i + 1, 500)
+y_local = f(x_local)
+
+plt.figure(figsize=(10, 6))
+plt.plot(x_local, y_local, label="f(x)", color="blue")
+plt.axhline(0, color="black", linestyle="--")
+plt.plot(x_tangent, y_tangent, label="Касательная (первая)", color="red", linestyle="-.")
+plt.plot(x_chord, y_chord, label="Хорда (первая)", color="green", linestyle=":")
+plt.scatter([x_newton], [f_newton], color="red", label="Старт Ньютона")
+plt.scatter([x_secant], [f_secant], color="green", label="Старт хорды")
+plt.title("Первая касательная и хорда на отрезке")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
